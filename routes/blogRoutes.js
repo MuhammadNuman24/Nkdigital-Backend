@@ -10,7 +10,11 @@ router.get('/', async (req, res) => {
         const blogs = await Blog.find({}).sort({ createdAt: -1 });
         res.json(blogs);
     } catch (error) {
-        res.status(500).json({ message: 'Server Error' });
+        console.error('Fetch Blogs Error:', error);
+        res.status(500).json({
+            message: 'Server Error fetching blogs',
+            error: error.message
+        });
     }
 });
 
