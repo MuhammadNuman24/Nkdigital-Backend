@@ -28,6 +28,14 @@ const blogSchema = mongoose.Schema(
             required: [true, 'Please select a type'],
             enum: ['blog', 'product'],
         },
+        description: {
+            type: String,
+            default: '',
+        },
+        hashtags: {
+            type: [String],
+            default: [],
+        },
     },
     {
         timestamps: true,

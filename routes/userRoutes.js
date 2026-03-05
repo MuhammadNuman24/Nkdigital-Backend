@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { protect } = require('../middleware/authMiddleware');
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET || 'secret123', {
@@ -33,6 +34,12 @@ router.post('/login', async (req, res) => {
 router.post('/signup', async (req, res) => {
     const { name, email, password } = req.body;
 
+    // Optional: Restrict to only one admin account
+    const userCount = await User.countDocuments({});
+    if (userCount >= 1) {
+        return res.status(400).json({ message: 'Admin account already exists' });
+    }
+
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -55,6 +62,29 @@ router.post('/signup', async (req, res) => {
         });
     } else {
         res.status(400).json({ message: 'Invalid user data' });
+    }
+});
+
+// @desc    Update user password
+// @route   PUT /api/users/profile
+router.put('/profile', protect, async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+        if (req.body.password) {
+            user.password = req.body.password;
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            token: generateToken(updatedUser._id),
+        });
+    } else {
+        res.status(404).json({ message: 'User not found' });
     }
 });
 

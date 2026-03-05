@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 // @route   POST /api/blogs
 router.post('/', protect, async (req, res) => {
     try {
-        const { title, imageUrl, category, affiliateUrl, author, type } = req.body;
+        const { title, imageUrl, category, affiliateUrl, author, type, description, hashtags } = req.body;
         const blog = new Blog({
             title,
             imageUrl,
@@ -26,6 +26,8 @@ router.post('/', protect, async (req, res) => {
             affiliateUrl,
             author,
             type,
+            description,
+            hashtags,
         });
         const createdBlog = await blog.save();
         res.status(201).json(createdBlog);
