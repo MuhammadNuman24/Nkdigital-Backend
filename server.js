@@ -22,6 +22,15 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        message: 'Something went wrong!',
+        error: process.env.NODE_ENV === 'production' ? {} : err.message
+    });
+});
+
 const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== 'production') {
