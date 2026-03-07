@@ -1,4 +1,13 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
+const result = dotenv.config();
+
+if (result.error) {
+    console.error('[Backend Error] Failed to load .env file:', result.error);
+} else {
+    console.log('[Backend] .env file loaded successfully');
+    console.log('[Backend] MONGO_URI in process.env:', process.env.MONGO_URI ? 'FOUND (length ' + process.env.MONGO_URI.length + ')' : 'NOT FOUND');
+}
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -8,6 +17,7 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 
 // Connect to database
+console.log('[Backend] Initializing database connection...');
 connectDB();
 
 // Middleware
