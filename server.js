@@ -1,18 +1,5 @@
 const dns = require('dns');
 const dotenv = require('dotenv');
-const cors = require('cors');
-
-const corsOptions = {
-    origin: [
-        'http://localhost:5173',      // Local development
-        'http://localhost:3000',      // Alternative local port
-        'https://nkdigitalhub.store'  // Your production domain
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-};
-
 
 // Force Node.js to use Google DNS
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -27,15 +14,39 @@ if (result.error) {
 }
 
 const express = require('express');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const blogRoutes = require('./routes/blogRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
-// Middleware
-app.use(express.json());
+// Configure CORS
+const corsOptions = {
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'http://127.0.0.1:5173',
+            'https://nkdigitalhub.store',
+            'https://www.nkdigitalhub.store'
+        ];
+        
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS not allowed'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
+};
+
 app.use(cors(corsOptions));
+app.use(express.json());
+
 // Routes
 app.use('/api/blogs', blogRoutes);
 app.use('/api/users', userRoutes);
@@ -61,7 +72,7 @@ const startServer = async () => {
         console.log('[Backend] Initializing database connection...');
         await connectDB();
         console.log('[Backend] Database connected successfully!');
-
+        
         app.listen(PORT, () => {
             console.log(`[Backend] Server running on port ${PORT}`);
         });
