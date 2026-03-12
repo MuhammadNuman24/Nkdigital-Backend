@@ -1,4 +1,9 @@
+const dns = require('dns');
 const dotenv = require('dotenv');
+
+// Force Node.js to use Google DNS
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
 const result = dotenv.config();
 
 if (result.error) {
@@ -15,10 +20,6 @@ const blogRoutes = require('./routes/blogRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
-
-// Connect to database
-console.log('[Backend] Initializing database connection...');
-connectDB();
 
 // Middleware
 app.use(cors());
@@ -43,8 +44,22 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
+// Start server with proper async/await
+const startServer = async () => {
+    try {
+        console.log('[Backend] Initializing database connection...');
+        await connectDB();
+        console.log('[Backend] Database connected successfully!');
+
+        app.listen(PORT, () => {
+            console.log(`[Backend] Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('[Backend Error] Failed to start server:', error.message);
+        process.exit(1);
+    }
+};
+
+startServer();
 
 module.exports = app;
