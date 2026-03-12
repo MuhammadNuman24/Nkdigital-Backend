@@ -18,6 +18,25 @@ router.get('/', async (req, res) => {
     }
 });
 
+// @desc    Get blog by ID
+// @route   GET /api/blogs/:id
+router.get('/:id', async (req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id);
+        if (blog) {
+            res.json(blog);
+        } else {
+            res.status(404).json({ message: 'Blog not found' });
+        }
+    } catch (error) {
+        console.error('Fetch Blog Error:', error);
+        res.status(500).json({
+            message: 'Server Error fetching blog',
+            error: error.message
+        });
+    }
+});
+
 // @desc    Create a blog
 // @route   POST /api/blogs
 router.post('/', protect, async (req, res) => {
