@@ -1,5 +1,18 @@
 const dns = require('dns');
 const dotenv = require('dotenv');
+const cors = require('cors');
+
+const corsOptions = {
+    origin: [
+        'http://localhost:5173',      // Local development
+        'http://localhost:3000',      // Alternative local port
+        'https://nkdigitalhub.store'  // Your production domain
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 
 // Force Node.js to use Google DNS
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -14,7 +27,6 @@ if (result.error) {
 }
 
 const express = require('express');
-const cors = require('cors');
 const connectDB = require('./config/db');
 const blogRoutes = require('./routes/blogRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -22,9 +34,8 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 
 // Middleware
-app.use(cors());
 app.use(express.json());
-
+app.use(cors(corsOptions));
 // Routes
 app.use('/api/blogs', blogRoutes);
 app.use('/api/users', userRoutes);
