@@ -75,4 +75,31 @@ router.delete('/:id', protect, async (req, res) => {
     }
 });
 
+// @desc    Update a blog
+// @route   PUT /api/blogs/:id
+router.put('/:id', protect, async (req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id);
+        
+        if (blog) {
+            blog.title = req.body.title || blog.title;
+            blog.imageUrl = req.body.imageUrl || blog.imageUrl;
+            blog.category = req.body.category || blog.category;
+            blog.affiliateUrl = req.body.affiliateUrl !== undefined ? req.body.affiliateUrl : blog.affiliateUrl;
+            blog.author = req.body.author || blog.author;
+            blog.type = req.body.type || blog.type;
+            blog.description = req.body.description !== undefined ? req.body.description : blog.description;
+            // Handle hashtags (it can be sent as an array or kept as is)
+            blog.hashtags = req.body.hashtags || blog.hashtags;
+
+            const updatedBlog = await blog.save();
+            res.json(updatedBlog);
+        } else {
+            res.status(404).json({ message: 'Blog not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
 module.exports = router;
